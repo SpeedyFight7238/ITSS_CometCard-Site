@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "FoundItem": {
+      "title": "FoundItem",
+      "description": "A found belonging reported on the UT Dallas campus.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string", "maxLength": 500 },
+        "dateFound": { "type": "string" },
+        "campusLocation": { "type": "string" },
+        "specificLocation": { "type": "string", "maxLength": 200 },
+        "status": {
+          "type": "string",
+          "enum": ["Available", "Approved — Awaiting Return", "Returned"]
+        },
+        "dateReturned": { "type": "string" },
+        "returnedToName": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "category", "description", "dateFound", "campusLocation", "status", "createdAt"]
+    },
+    "ClaimRequest": {
+      "title": "ClaimRequest",
+      "description": "An ownership claim submitted for a found campus belonging.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "itemId": { "type": "string" },
+        "claimantName": { "type": "string", "maxLength": 100 },
+        "contactEmail": { "type": "string", "maxLength": 150 },
+        "contactPhone": { "type": "string", "maxLength": 30 },
+        "identifyingDetail": { "type": "string", "maxLength": 1000 },
+        "submittedAt": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Approved", "Rejected"]
+        },
+        "reviewDate": { "type": "string" },
+        "rejectionReason": { "type": "string", "maxLength": 300 }
+      },
+      "required": [
+        "id",
+        "itemId",
+        "claimantName",
+        "contactEmail",
+        "contactPhone",
+        "identifyingDetail",
+        "submittedAt",
+        "status"
+      ]
+    }
+  },
+  "firestore": {
+    "/items/{itemId}": {
+      "schema": { "$ref": "#/entities/FoundItem" },
+      "description": "Collection of found items reported across campus."
+    },
+    "/claims/{claimId}": {
+      "schema": { "$ref": "#/entities/ClaimRequest" },
+      "description": "Collection of ownership claims submitted for found items."
+    }
+  }
+}

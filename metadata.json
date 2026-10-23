@@ -1,0 +1,6 @@
+{
+  "name": "Comet Finder",
+  "description": "Helping UT Dallas students reconnect with their lost belongings. A student project prototype for lost and found items on the UT Dallas campus.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

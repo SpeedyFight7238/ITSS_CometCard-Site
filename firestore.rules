@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function isValidItem(data) {
+      return data.id is string && data.id.size() <= 64 &&
+             data.category is string && data.category.size() <= 64 &&
+             data.description is string && data.description.size() <= 1000 &&
+             data.dateFound is string && data.dateFound.size() <= 32 &&
+             data.campusLocation is string && data.campusLocation.size() <= 100 &&
+             (!('specificLocation' in data) || (data.specificLocation is string && data.specificLocation.size() <= 300)) &&
+             data.status in ['Available', 'Approved — Awaiting Return', 'Returned'] &&
+             (!('dateReturned' in data) || (data.dateReturned is string && data.dateReturned.size() <= 32)) &&
+             (!('returnedToName' in data) || (data.returnedToName is string && data.returnedToName.size() <= 150)) &&
+             data.createdAt is string && data.createdAt.size() <= 64;
+    }
+
+    function isValidClaim(data) {
+      return data.id is string && data.id.size() <= 64 &&
+             data.itemId is string && data.itemId.size() <= 64 &&
+             data.claimantName is string && data.claimantName.size() <= 150 &&
+             data.contactEmail is string && data.contactEmail.size() <= 200 &&
+             data.contactPhone is string && data.contactPhone.size() <= 50 &&
+             data.identifyingDetail is string && data.identifyingDetail.size() <= 2000 &&
+             data.submittedAt is string && data.submittedAt.size() <= 64 &&
+             data.status in ['Pending', 'Approved', 'Rejected'] &&
+             (!('reviewDate' in data) || (data.reviewDate is string && data.reviewDate.size() <= 64)) &&
+             (!('rejectionReason' in data) || (data.rejectionReason is string && data.rejectionReason.size() <= 500));
+    }
+
+    match /items/{itemId} {
+      allow read: if true;
+      allow create: if isValidId(itemId) && isValidItem(incoming());
+      allow update: if isValidId(itemId) && isValidItem(incoming());
+      allow delete: if true;
+    }
+
+    match /claims/{claimId} {
+      allow read: if true;
+      allow create: if isValidId(claimId) && isValidClaim(incoming());
+      allow update: if isValidId(claimId) && isValidClaim(incoming());
+      allow delete: if true;
+    }
+  }
+}
